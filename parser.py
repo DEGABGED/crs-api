@@ -4,7 +4,8 @@ import urllib
 from subject import Subject
 from operator import methodcaller
 
-def get_by_subject(subject, term="120172"):
+# Returns a list of Subject objects, given by the search term "Subject"
+def get_by_search(subject, term="120172"):
     # Variables from the user supposedly
     term = urllib.parse.quote(term, safe='')
     subject = urllib.parse.quote(subject, safe='')
@@ -16,10 +17,12 @@ def get_by_subject(subject, term="120172"):
 
     xpath = '//table[@id="tbl_schedule"]/tbody'
     count = len(tree.xpath(xpath)) + 1
+    subjects = []
     for row in range(1,count):
         stuff = parse_subject(xpath + '[{r}]'.format(r=row), tree)
-        print(stuff)
-        print('\n')
+        subjects.append(stuff)
+
+    return subjects
 
 # Parses a row in the CRS schedules table
 # Done by row since working with lists is a pain in the ass
@@ -48,3 +51,12 @@ def parse_subject(row_xpath,tree):
     subject.remarks = (remarks[0] if remarks else "") + "\nEnlisting unit - " + enlisting + "\n" + restrict
 
     return subject
+
+## Main function (for running)
+def main():
+    subjects = get_by_search("CS 153")
+    for s in subjects:
+        print(s)
+
+main()
+
