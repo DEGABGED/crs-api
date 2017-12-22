@@ -34,6 +34,12 @@ def parse_subject(row_xpath,tree):
     subject.class_code = tree.xpath(row_xpath + '/tr/td[1]/text()')[0]
     subject.class_name = tree.xpath(row_xpath + '/tr/td[2]/text()')[0]
     subject.credits = float(tree.xpath(row_xpath + '/tr/td[3]/text()')[0])
+    subject.course = ' '.join(subject.class_name.split()[0:2])
+
+    # If subject is dissolved, return nothing
+    if (tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0] == "DISSOLVED"):
+        return
+
     subject.slots_avail = int(tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0])
     subject.slots_total = int(tree.xpath(row_xpath + '/tr/td[6]/text()')[1].strip(' /\n\t'))
     subject.demand = int(tree.xpath(row_xpath + '/tr/td[7]/text()')[0])
@@ -46,9 +52,9 @@ def parse_subject(row_xpath,tree):
     # Gather all the remarks
     remarks = tree.xpath(row_xpath + '/tr/td[4]/em/text()')
     enlisting = tree.xpath(row_xpath + '/tr/td[5]/text()')[0].strip()
-    restrict = '\n'.join(map(lambda x: x.strip(), tree.xpath(row_xpath + '/tr/td[8]/text()')))
+    restrict = '; '.join(map(lambda x: x.strip(), tree.xpath(row_xpath + '/tr/td[8]/text()')))
 
-    subject.remarks = (remarks[0] if remarks else "") + "\nEnlisting unit - " + enlisting + "\n" + restrict
+    subject.remarks = (remarks[0] + "; " if remarks else "") + "Enlisting unit - " + enlisting + "; " + restrict
 
     return subject
 
@@ -57,6 +63,7 @@ def main():
     subjects = get_by_search("CS 153")
     for s in subjects:
         print(s)
+        print('\n')
 
 main()
 
