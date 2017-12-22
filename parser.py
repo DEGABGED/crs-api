@@ -1,7 +1,7 @@
 from lxml import html
 import requests
 import urllib
-from subject import Subject
+from subject import *
 from operator import methodcaller
 
 # Returns a list of Subject objects, given by the search term "Subject"
@@ -20,13 +20,18 @@ def get_by_search(subject, term="120172"):
     subjects = []
     for row in range(1,count):
         stuff = parse_subject(xpath + '[{r}]'.format(r=row), tree)
-        subjects.append(stuff)
+        if (stuff != None):
+            subjects.append(stuff)
 
     return subjects
 
 # Parses a row in the CRS schedules table
 # Done by row since working with lists is a pain in the ass
 def parse_subject(row_xpath,tree):
+    # If subject is dissolved, return nothing
+    if (tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0] == "DISSOLVED"):
+        return
+
     xpath = '//table[@id="tbl_schedule"]/tbody/tr/td[{col}]/text()'
     subject = Subject()
 
@@ -36,17 +41,13 @@ def parse_subject(row_xpath,tree):
     subject.credits = float(tree.xpath(row_xpath + '/tr/td[3]/text()')[0])
     subject.course = ' '.join(subject.class_name.split()[0:2])
 
-    # If subject is dissolved, return nothing
-    if (tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0] == "DISSOLVED"):
-        return
-
     subject.slots_avail = int(tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0])
     subject.slots_total = int(tree.xpath(row_xpath + '/tr/td[6]/text()')[1].strip(' /\n\t'))
     subject.demand = int(tree.xpath(row_xpath + '/tr/td[7]/text()')[0])
 
     # Parse the schedule and instructor
     sched, instr, *tail = tree.xpath(row_xpath + '/tr/td[4]/text()')
-    subject.schedule = sched.strip()
+    subject.schedule = list(map(Schedule.parse, sched.split(';')))
     subject.instructor = instr.strip()
 
     # Gather all the remarks
@@ -60,7 +61,7 @@ def parse_subject(row_xpath,tree):
 
 ## Main function (for running)
 def main():
-    subjects = get_by_search("CS 153")
+    subjects = get_by_search("Physics 1")
     for s in subjects:
         print(s)
         print('\n')
