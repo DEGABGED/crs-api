@@ -18,5 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('sched/', include('sched_viewer.urls')),
+    path('api/', include('sched_api.urls')),
     path('admin/', admin.site.urls),
 ]
