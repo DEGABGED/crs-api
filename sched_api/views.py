@@ -1,50 +1,47 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from sched_api.models import Subject
 from sched_api.serializers import SubjectSerializer
+from django.http import Http404
+from rest_framework import mixins
+from rest_framework import generics
 
 # Create your views here.
-@api_view(['GET', 'POST'])
-def subject_list(request, format=None):
-    """
-    List all code snippets, or create a new snippet.
-    """
-    if request.method == 'GET':
+class SubjectList(APIView):
+    def get(self, request, format=None):
         subjects = Subject.objects.all()
         serializer = SubjectSerializer(subjects, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = SubjectSerializer(data=data)
+    def post(self, request, format=None):
+        serializer = SubjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def subject_detail(request, pk, format=None):
-    """
-    Retrieve, update or delete a subject.
-    """
-    try:
-        subject = Subject.objects.get(pk=pk)
-    except Subject.DoesNotExist:
-        return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+class SubjectDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Subject.objects.get(pk=pk)
+        except Subject.DoesNotExist:
+            raise Http404
 
-    # Subject object already obtained, now process according to request
-    if request.method == 'GET':
+    def get(self, request, pk, format=None):
+        subject = self.get_object(pk)
         serializer = SubjectSerializer(subject)
         return Response(serializer.data)
 
-    elif request.method == 'PUT':
+    def put(self, request, pk, format=None):
+        subject = self.get_object(pk)
         serializer = SubjectSerializer(subject, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
+    def delete(self, request, pk, format=None):
+        subject = self.get_object(pk)
         subject.delete()
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
