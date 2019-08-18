@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 
 class Subject(object):
     def __init__(self,course="",class_code="",class_name="",credits=0.0,
@@ -28,6 +29,12 @@ class Subject(object):
 
     def str_sched(self):
         return '; '.join(list(map(str, self.schedule)))
+
+    def toJSON(self):
+        output = self.__dict__
+        output['schedule'] = self.str_sched()
+        return json.dumps(output)
+
 
 class Schedule(object):
     def __init__(self,days="",start_time=None,end_time=None,venue=""):
