@@ -1,4 +1,4 @@
-"""crs_api URL Configuration
+"""crs_api_site URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('sched/', include('sched_viewer.urls')),
-    path('api/', include('sched_api.urls')),
+    path('', include('viewer.urls')),
+    path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -1,13 +1,13 @@
-#from rest_framework import status
-#from rest_framework.response import Response
 #from rest_framework.views import APIView
-#from django.http import Http404
+from rest_framework import status
 from rest_framework import mixins
 from rest_framework import generics
-from sched_api.models import Subject
-from sched_api.serializers import SubjectSerializer
+from rest_framework.response import Response
+from django.http import Http404
+from api.models import Subject
+from api.serializers import SubjectSerializer
 
-# Create your views here.
+
 # NOTE: On deployment, most (if not all) POST routes will be removed, to prevent outsiders from changing the Database
 class SubjectList(mixins.ListModelMixin,
                   mixins.CreateModelMixin,

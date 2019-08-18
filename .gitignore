@@ -17,3 +17,5 @@ tests/.coverage
 build/
 tests/report/
 *.swp
+*.rdb
+db.sqlite3

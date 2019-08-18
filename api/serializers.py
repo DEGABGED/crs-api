@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from sched_api.models import *
+from api.models import *
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:

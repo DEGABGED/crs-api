@@ -3,3 +3,5 @@ lxml
 djangorestframework
 markdown
 django-filter
+redis
+rq
