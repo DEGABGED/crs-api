@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'crs_parser',
     'rest_framework',
     'api.apps.ApiConfig',
+    'django_rq',
+    'cacheback'
 ]
 
 MIDDLEWARE = [
@@ -122,6 +124,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
 # Django REST Framework
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
@@ -129,4 +132,66 @@ REST_FRAMEWORK = {
     #'DEFAULT_PERMISSION_CLASSES': [
         #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     #]
+}
+
+
+# Django RQ
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#         'LOCATION': '127.0.0.1:11211',
+#     }
+# }
+
+# RQ_QUEUES = {
+#     'default': {
+#         'HOST': 'localhost',
+#         'PORT': 6379,
+#         'DB': 0,
+#         'DEFAULT_TIMEOUT': 360,
+#     }
+# }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1', 
+        'OPTIONS': { 
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient', 
+            'MAX_ENTRIES': 5000, 
+        }, 
+    },
+}
+RQ_QUEUES = {
+    'default': {
+        'USE_REDIS_CACHE': 'default',
+    },
+}
+
+# Django Cacheback
+
+CACHEBACK_TASK_QUEUE = 'rq'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'cacheback': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    }
 }

@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.http import Http404
 from api.models import Subject
 from api.serializers import SubjectSerializer
+from api.utils import *
 
 
 # NOTE: On deployment, most (if not all) POST routes will be removed, to prevent outsiders from changing the Database
@@ -16,9 +17,12 @@ class SubjectList(mixins.ListModelMixin,
     serializer_class = SubjectSerializer
 
     def get(self, request, format=None):
-        subjects = Subject.objects.all()
-        serializer = SubjectSerializer(subjects, many=True)
-        return Response(serializer.data)
+        # subjects = Subject.objects.all()
+        # serializer = SubjectSerializer(subjects, many=True)
+        # return Response(serializer.data)
+
+        # For now, test the caching capabilities of just the util function
+        return Response(fetch_subjects("Math 2"))
 
     def post(self, request, format=None):
         serializer = SubjectSerializer(data=request.data)

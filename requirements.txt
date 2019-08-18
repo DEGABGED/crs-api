@@ -4,4 +4,7 @@ djangorestframework
 markdown
 django-filter
 redis
+django-redis
 rq
+python-memcached
+django-cacheback[rq]
