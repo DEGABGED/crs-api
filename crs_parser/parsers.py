@@ -1,7 +1,8 @@
 from lxml import html
 import requests
 import urllib
-from crs.models.subject import *
+from crs_parser.models import Subject, Schedule
+from crs_parser.helpers import string_safe_int
 
 class CRSScheduleParser(object):
     # Class variable
@@ -10,8 +11,8 @@ class CRSScheduleParser(object):
     def __init__(self):
         self.subjects = []
 
-    # Returns a list of Subject objects, given by the search term "Subject"
-    def get_by_search(self, subject, term="120172", clear=True):
+    # Returns a list of Subject objects, given by the search term or alphabetical category "Subject"
+    def get_by_search(self, subject, term="120182", clear=True):
         # Variables from the user supposedly
         term = urllib.parse.quote(term, safe='')
         subject = urllib.parse.quote(subject, safe='')
@@ -49,7 +50,7 @@ class CRSScheduleParser(object):
         subject.credits = float(tree.xpath(row_xpath + '/tr/td[3]/text()')[0])
         subject.course = ' '.join(subject.class_name.split()[0:2])
 
-        subject.slots_avail = int(tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0])
+        subject.slots_avail = string_safe_int(tree.xpath(row_xpath + '/tr/td[6]/strong/text()')[0])
         subject.slots_total = int(tree.xpath(row_xpath + '/tr/td[6]/text()')[1].strip(' /\n\t'))
         subject.demand = int(tree.xpath(row_xpath + '/tr/td[7]/text()')[0])
 

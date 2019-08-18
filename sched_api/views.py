@@ -1,14 +1,20 @@
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from sched_api.models import Subject
-from sched_api.serializers import SubjectSerializer
-from django.http import Http404
+#from rest_framework import status
+#from rest_framework.response import Response
+#from rest_framework.views import APIView
+#from django.http import Http404
 from rest_framework import mixins
 from rest_framework import generics
+from sched_api.models import Subject
+from sched_api.serializers import SubjectSerializer
 
 # Create your views here.
-class SubjectList(APIView):
+# NOTE: On deployment, most (if not all) POST routes will be removed, to prevent outsiders from changing the Database
+class SubjectList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+    queryset = Subject.objects.all()
+    serializer_class = SubjectSerializer
+
     def get(self, request, format=None):
         subjects = Subject.objects.all()
         serializer = SubjectSerializer(subjects, many=True)
@@ -21,7 +27,7 @@ class SubjectList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class SubjectDetail(APIView):
+class SubjectDetail(generics.GenericAPIView):
     def get_object(self, pk):
         try:
             return Subject.objects.get(pk=pk)
